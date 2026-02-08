@@ -53,7 +53,7 @@ export function createTurndownService(): TurndownService {
     }
   }
 
-  turndown.remove(UNWANTED_ELEMENTS);
+  turndown.remove(UNWANTED_ELEMENTS as any);
 
   turndown.addRule("preserveBlankLinks", {
     filter: (node: any) => {

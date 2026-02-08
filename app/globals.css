@@ -85,6 +85,7 @@ body {
 .toolbar input[type="text"] {
   font-size: 14px;
   padding: 4px 8px;
+  min-width: 0; /* allow the input to shrink on small screens */
 }
 
 .toolbar-group {
@@ -99,6 +100,24 @@ body {
   align-items: center;
   min-width: 150px;
   gap: 4px;
+  min-width: 0; /* allow container to shrink inside toolbar */
+}
+
+/* ensure input can shrink and the button stays visible on narrow viewports */
+.url-input-container input[type="text"] {
+  flex: 1 1 auto;
+  min-width: 0; /* critical for flex children to shrink */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.url-input-container button {
+  flex: 0 0 auto; /* keep the button fixed size so it remains visible */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 6px 8px;
 }
 
 /* make the URL input visually match the surrounding toolbar buttons */
@@ -303,5 +322,53 @@ select {
   object-fit: contain;
   vertical-align: middle;
   margin-right: 6px;
+}
+
+/* Responsive layout: on narrow screens, stack toolbar into rows
+   1) first toolbar-group (Home/Reload)
+   2) URL input row (full width with Go button)
+   3) second toolbar-group (Preview/Markdown/HTML)
+*/
+@media (max-width: 640px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  /* keep the first group and last group as horizontal rows */
+  .toolbar > .toolbar-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  /* make URL row take full width */
+  .url-input-container {
+    width: 100%;
+    flex: none;
+    order: 2;
+    gap: 6px;
+  }
+
+  /* ensure the input fills available space and the button stays visible */
+  .url-input-container input[type="text"] {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .url-input-container button {
+    flex: 0 0 auto;
+  }
+
+  /* place first toolbar-group above the URL, and the other group below */
+  .toolbar > .toolbar-group:first-of-type {
+    order: 1;
+  }
+
+  .toolbar > .toolbar-group:last-of-type {
+    order: 3;
+  }
 }
 

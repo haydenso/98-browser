@@ -100,8 +100,11 @@ export default function Home() {
     const href = anchor.href;
     if (!href) return;
 
-    // allow links to your personal site to open normally
-    if (href.includes("haydenso.com")) {
+    // allow certain links to open in a new tab instead of internal routing
+    const allowList = ["haydenso.com", "turndown", "98.css"];
+    if (allowList.some((s) => href.includes(s))) {
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
       return;
     }
 
@@ -215,7 +218,10 @@ export default function Home() {
                 placeholder="Enter URL..."
                 style={{ flex: 1 }}
               />
-              <button type="submit">Go</button>
+              <button type="submit" aria-label="Go" title="Go">
+                <img src="/go.png" alt="Go" className="btn-icon" />
+                Go
+              </button>
             </form>
 
             <div className="toolbar-group">

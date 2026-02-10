@@ -14,6 +14,8 @@ export default function Home() {
     sendAcceptMd: true,
     autoConvert: true,
   });
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const normalizeUrl = (input: string): string => {
@@ -49,6 +51,10 @@ export default function Home() {
       const data = await response.json();
       setContent(data);
       setCurrentUrl(data.url);
+      
+      // Add to history if it's a new navigation (not from back button)
+      setHistory(prev => [...prev.slice(0, historyIndex + 1), data.url]);
+      setHistoryIndex(prev => prev + 1);
     } catch (error) {
       console.error("Fetch error:", error);
       setContent({
@@ -77,11 +83,52 @@ export default function Home() {
     }
   };
 
+  const handleBack = async () => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      const previousUrl = history[newIndex];
+      
+      setHistoryIndex(newIndex);
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/fetch", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            url: previousUrl,
+            sendAcceptMd: settings.sendAcceptMd,
+            autoConvert: settings.autoConvert,
+          }),
+        });
+
+        const data = await response.json();
+        setContent(data);
+        setCurrentUrl(data.url);
+        setUrl(data.url);
+      } catch (error) {
+        console.error("Fetch error:", error);
+        setContent({
+          url: previousUrl,
+          markdown: `# Error\n\nFailed to load: ${previousUrl}\n\n${error}`,
+          rawHtml: "",
+          title: "Error",
+          wasMarkdown: false,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   const handleHome = () => {
     setContent(null);
     setCurrentUrl("");
     setUrl("");
     setViewMode("preview");
+    setHistory([]);
+    setHistoryIndex(-1);
   };
 
   const handleVisit = (link: string, e?: React.MouseEvent) => {
@@ -220,7 +267,17 @@ export default function Home() {
               />
               <button type="submit" aria-label="Go" title="Go">
                 <img src="/go.png" alt="Go" className="btn-icon" />
-                Go
+                Enter
+              </button>
+              <button 
+                type="button" 
+                onClick={handleBack} 
+                disabled={historyIndex <= 0}
+                aria-label="Back"
+                title="Back"
+              >
+                <img src="/back.png" alt="Back" className="btn-icon" />
+                Back
               </button>
             </form>
 

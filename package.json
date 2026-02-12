@@ -11,12 +11,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-
   "dependencies": {
     "@types/node": "^25.2.2",
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "@types/turndown": "^5.0.6",
+    "@vercel/analytics": "^1.6.1",
     "98.css": "^0.1.21",
     "marked": "^17.0.1",
     "next": "^16.1.6",
